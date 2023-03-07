@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 
+
 class net_basic(torch.nn.Module):
     def __init__(self, in_features=1, out_features=1, width=100, bias_flag=False, mode='vallina'):
         super(net_basic, self).__init__()

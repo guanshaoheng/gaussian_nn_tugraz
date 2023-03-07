@@ -5,6 +5,15 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from dataset_gen_gaussian import gaussian_data_gen
 
+'''
+    Here is a script referred to  
+        [1] S. Ranftl, “A connection between probability, physics and neural networks,” 2022, [Online]. 
+            Available: http://arxiv.org/abs/2209.12737.
+            
+        [2] C. Albert, “Physics-informed transfer path analysis with parameter estimation using Gaussian processes,” 
+            Proc. Int. Congr. Acoust., vol. 2019-September, no. 1, pp. 459–466, 2019, doi: 10.18154/RWTH-CONV-238988.
+'''
+
 
 def main():
     x, y = dataset_gen(num_points=10, noise=0.2)
@@ -18,7 +27,7 @@ def main():
     test(x=x, y=y, mode_list=mode_list)
 
 
-def single_train(x, y, num_epoch=10000, mode='physics_constrained'):
+def single_train(x, y, num_epoch=20000, mode='physics_constrained'):
     # x, y = dataset_gen()
     model = net_basic(mode=mode, width=10)
     optim = torch.optim.Adam(model.parameters())

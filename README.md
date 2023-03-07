@@ -1,2 +1,11 @@
 # gaussian_nn_tugraz
 This is a repository of some researches about the link between Gaussian Process and the NN.
+
+We referred to the [work](https://arxiv.org/abs/2209.12737).
+
+- We compared the performance of Vanilla, PINN and physics-constrained network in this work (PCNN).
+- There is no doubt that the PCNN performs best as the activation function is constrained like the physics kernel 
+in the Gaussian Process mentioned in [this work](https://arxiv.org/pdf/1905.07907.pdf).
+
+![The training loss](./figs/loss_train.png)
+![The training loss](./figs/prediction.png)
