@@ -18,13 +18,10 @@ better against the noises.
   **PCNN** work the activation is <span style="color:red">**sin()**</span>
     - with a constrained proper activation function, the PCNN performs the best.
     - compared with the results of 'vanilla' network, the PINN and PCNN behave better against the noise.
-
-<p>
-    <img src="./figs/loss_train.png" alt>
-</p>
-<p>
-    <em>training loss (1D)</em>
-</p>
+    
+| ![space-1.jpg](./figs/loss_train.png) | 
+|:--:| 
+| *training loss (1D)s* |
 
 
 <img height="5" src="./figs/loss_train.png" title="training loss (1D)"/>
