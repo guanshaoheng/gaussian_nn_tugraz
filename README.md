@@ -25,7 +25,7 @@ better against the noises.
 
 
 # 2-D Helmholtz equations
-First, the training datasets is generated via Random Gaussian process, whose kernel is the [Bessel function](https://en.wikipedia.org/wiki/Bessel_function)
+First, the training datasets is generated via Random Gaussian Process, whose kernel is the [Bessel function](https://en.wikipedia.org/wiki/Bessel_function)
 ![equation](https://latex.codecogs.com/svg.image?J_0(k\|\mathbf{x}&space;-\mathbf{x}'&space;\|)), and **noise=0.1**.
 
 Only 0.2 of the training datasets with noises are fed into the training process.
@@ -47,6 +47,16 @@ sin()** activation.
 | ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_1.00.png) | ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_0.05.png) | ![](./helmholtz_2d/xy_data/error_cut_-1.00.png)|
 |:--:| :--:| :--:| 
 | **Cut to see the prediction (at the *top*)** |**Cut to see the prediction (at the *medium*)**|**Cut to see the prediction (at the *bottom*)**|
+
+
+# Discussion
+- First, only the proper activation according to the datasets can help the model regression well. For example, the
+vanilla network with **ReLU()** performs poor.
+- with proper the activation, the PCNN can perform as well as the PINN. 
+- The PINN training is very time-consuming as the `grad` opertation in PINN trainig is fair complex. 
+So it should be a good idea to apply the physics to the activation function 
+- The PINN and the PCNN both can help the model generalize better and resist the noise in the training datasets as the 
+physics conditions are included.
 
 
 
