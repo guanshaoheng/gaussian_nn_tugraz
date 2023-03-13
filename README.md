@@ -21,6 +21,7 @@ better against the noises.
 
 <p>
     <img src="./figs/loss_train.png" alt>
+
     <em>training loss (1D)</em>
 </p>
 
