@@ -19,16 +19,9 @@ better against the noises.
     - with a constrained proper activation function, the PCNN performs the best.
     - compared with the results of 'vanilla' network, the PINN and PCNN behave better against the noise.
     
-| ![space-1.jpg](./figs/loss_train.png) | 
-|:--:| 
-| *training loss (1D)s* |
-
-
-<img height="5" src="./figs/loss_train.png" title="training loss (1D)"/>
-**training loss (1D)**
-
-<img height="5" src="./figs/prediction.png" title="prediction (1D)"/>
-**prediction (1D)**
+| ![space-1.jpg](./figs/loss_train.png) | ![space-1.jpg](./figs/prediction.png) |
+|:--:| :--:| 
+| *training loss (1D)* |*prediction (1D)*|
 
 
 # 2-D Helmholtz equations
