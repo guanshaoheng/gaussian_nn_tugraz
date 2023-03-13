@@ -25,7 +25,7 @@ better against the noises.
 
 
 # 2-D Helmholtz equations
-First, the training datasets is generated via Random Gaussian process, whose kernel is 
+First, the training datasets is generated via Random Gaussian process, whose kernel is the [Bessel function](https://en.wikipedia.org/wiki/Bessel_function)
 ![equation](https://latex.codecogs.com/svg.image?J_0(k\|\mathbf{x}&space;-\mathbf{x}'&space;\|)), and **noise=0.1**.
 
 Only 0.2 of the training datasets with noises are fed into the training process.
