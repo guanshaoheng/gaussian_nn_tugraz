@@ -21,7 +21,7 @@ better against the noises.
     
 | ![space-1.jpg](./figs/loss_train.png) | ![space-1.jpg](./figs/prediction.png) |
 |:--:| :--:| 
-| *training loss (1D)* |*prediction (1D)*|
+| **training loss (1D)** |**prediction (1D)**|
 
 
 # 2-D Helmholtz equations
@@ -37,11 +37,11 @@ sin()** activation.
     
 | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |
 |:--:| :--:| 
-| *Training datasets with noise (2-D)* |*Training datasets without noise (2-D)*|
+| **Training datasets with noise (2-D)** |**Training datasets without noise (2-D)**|
 | ![space-1.jpg](./helmholtz_2d/xy_data/training_loss.png) | ![space-1.jpg](./helmholtz_2d/xy_data/vanilla.png) |
-| *Training loss (2-D)* |*Vanilla prediction (2-D)*|
+| **Training loss (2-D)** |**Vanilla prediction (2-D)**|
 | ![space-1.jpg](./helmholtz_2d/xy_data/physics_informed.png) | ![space-1.jpg](./helmholtz_2d/xy_data/physics_constrained.png) |
-| *physics_informed prediction (2-D)* |*physics_constrained prediction (2-D)*|
+| **physics_informed prediction (2-D)** |**physics_constrained prediction (2-D)**|
 
 
 | ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_1.00.png) | ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_0.05.png) | ![](./helmholtz_2d/xy_data/error_cut_-1.00.png)|
