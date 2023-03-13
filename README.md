@@ -34,34 +34,23 @@ All of the networks are consists of 2 forword layer, with **vanilla ReLU()** act
 and **PCNN 
 sin()** activation.
 
-
-![](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png)
-**Training datasets with noise (2-D)**
-
-![](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png)
-**Training datasets without noise (2-D)**
-
-![](./helmholtz_2d/xy_data/training_loss.png)
-**Training loss**
-
-![](./helmholtz_2d/xy_data/vanilla.png)
-**vanilla prediction (2-D)**
-
-![](./helmholtz_2d/xy_data/physics_informed.png)
-**physics_informed prediction (2-D)**
-
-![](./helmholtz_2d/xy_data/physics_constrained.png)
-**physics_constrained prediction (2-D)**
+    
+| ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |
+|:--:| :--:| 
+| *Training datasets with noise (2-D)* |*Training datasets without noise (2-D)*|
+|:--:| :--:| 
+| ![space-1.jpg](./helmholtz_2d/xy_data/training_loss.png) | ![space-1.jpg](./helmholtz_2d/xy_data/vanilla.png) |
+|:--:| :--:| 
+| *Training loss (2-D)* |*Vanilla prediction (2-D)*|
+| ![space-1.jpg](./helmholtz_2d/xy_data/physics_informed.png) | ![space-1.jpg](./helmholtz_2d/xy_data/physics_constrained.png) |
+|:--:| :--:| 
+| *physics_informed prediction (2-D)* |*physics_constrained prediction (2-D)*|
 
 
-![](./helmholtz_2d/xy_data/error_cut_1.00.png)
-**Cut to see the prediction (at the *top*)**
+| ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_1.00.png) | ![space-1.jpg](./helmholtz_2d/xy_data/error_cut_0.05.png) | ![](./helmholtz_2d/xy_data/error_cut_0.05)|
+|:--:| :--:| :--:| 
+| **Cut to see the prediction (at the *top*)** |**Cut to see the prediction (at the *medium*)**|**Cut to see the prediction (at the *bottom*)**|
 
-![](./helmholtz_2d/xy_data/error_cut_0.05.png)
-**Cut to see the prediction (at the *medium*)**
-
-![](./helmholtz_2d/xy_data/error_cut_-1.00.png)
-**Cut to see the prediction (at the *bottom*)**
 
 
 
