@@ -32,7 +32,11 @@ Only 0.2 of the training datasets with noises are fed into the training process.
 
 All of the networks are consists of 2 forword layer, with **vanilla ReLU()** activation, **PINN Sigmoid()** activation 
 and **PCNN 
-sin()** activation.
+sin()** activation, respectively.
+
+## Problem during training the PINN
+We found the optimization concentrated too much on the optimization of the physics term 
+![equation](<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi mathvariant="normal">Δ</mi><mi>f</mi><mo>+</mo><msup><mi>s</mi><mn>2</mn></msup><mi>f</mi><mo>=</mo><mn>0</mn></math>)
 
     
 | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |
@@ -49,12 +53,13 @@ sin()** activation.
 | **Cut to see the prediction (at the *top*)** |**Cut to see the prediction (at the *medium*)**|**Cut to see the prediction (at the *bottom*)**|
 
 
+
 # Discussion
 - First, only the proper activation according to the datasets can help the model regression well. For example, the
 vanilla network with **ReLU()** performs poor.
 - with proper the activation, the PCNN can perform as well as the PINN. 
 - The PINN training is very time-consuming as the `grad` opertation in PINN trainig is fair complex. 
-So it should be a good idea to apply the physics to the activation function 
+So it should be a better idea to apply the physics to the activation function.
 - The PINN and the PCNN both can help the model generalize better and resist the noise in the training datasets as the 
 physics conditions are included.
 
