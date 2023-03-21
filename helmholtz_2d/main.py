@@ -8,20 +8,21 @@ from NN_models.train_nn import single_train, plot_loss
 import matplotlib.pyplot as plt
 
 
-def main(num_epoch=20000, ratio=0.3):
-    x, y, y_noise, index = data_load(save_path='xy_data')
+def main(num_epoch=20000, ratio=0.2, save_path = 'xy_data'):
+    x, y, y_noise, index = data_load(save_path=save_path)
     # y = y[:, np.newaxis]
     num_samples = len(x)
     index = index[: int(num_samples*ratio)]
     y_noise = y_noise[:, np.newaxis]
-    mode_list = ['vanilla',  'physics_informed', 'physics_constrained']
+    # y_noise = y[:, np.newaxis]
+    mode_list = ['vanilla', 'physics_informed', 'physics_constrained']
     loss_dic = {}
     for mode in mode_list:
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
         loss_dic[mode] = single_train(x=x[index], y=y_noise[index], mode=mode, width=10, num_epoch=num_epoch)
         test_single_trained_model(mode=mode)
     #
-    plot_loss(mode_list=mode_list, loss_dic=loss_dic)
+    plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path)
     #
     # test(x=x, y=y, mode_list=mode_list)
 
@@ -39,6 +40,8 @@ def test_single_trained_model(n=20, mode='vanilla', fig_save_path='xy_data'):
     plt.colorbar()
     plt.tight_layout()
     fig_name = os.path.join(fig_save_path, '%s.png' % mode)
+    if 'informed' in mode:
+        plt.title(r'$\nu=%.2f$' % model.nu)
     plt.savefig(fig_name, dpi=200)
     echo('fig saved as %s' % fig_name)
     plt.close()
@@ -86,5 +89,4 @@ def plot_cut_line(n=20, save_path='xy_data'):
 
 if __name__ == '__main__':
     main()
-    test_single_trained_model()
     plot_cut_line()

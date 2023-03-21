@@ -1,3 +1,5 @@
+import os.path
+
 from NN_models.network import net_basic
 import torch
 import numpy as np
@@ -20,7 +22,12 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
         else:
             y_pre, ddy_pre = model.forward_ddy(x_tensor)
             loss = loss_operator(y_pre, y_tensor) + \
-                   1. * loss_operator(ddy_pre.sum(-1, keepdim=True), -model.nu**2. * y_tensor)
+                   0.0001 * loss_operator(ddy_pre.sum(-1, keepdim=True), -model.nu**2. * y_pre)
+            '''
+                NOTE: the lambda here should be carefully selected according to 
+                 [1] why PINNS fail to train: https://www.sciencedirect.com/science/article/pii/S002199912100663X
+            '''
+
         loss.backward()
         optim.step()
         if epoch % 100 == 0:
@@ -36,7 +43,7 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
     return np.array(loss_list)
 
 
-def plot_loss(mode_list, loss_dic: dict):
+def plot_loss(mode_list, loss_dic: dict, save_path: str=None):
     for mode in mode_list:
         epoch = loss_dic[mode][:, 0]
         loss = loss_dic[mode][:, 1]
@@ -44,4 +51,10 @@ def plot_loss(mode_list, loss_dic: dict):
     plt.yscale('log')
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    if save_path is not None:
+        name = os.path.join(save_path, 'training_loss.png')
+        plt.savefig(name, dpi=200)
+        echo('The training loss is saved as %s' % name)
+    else:
+        plt.show()
+    plt.close()

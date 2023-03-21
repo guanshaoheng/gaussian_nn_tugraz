@@ -58,14 +58,18 @@ While, this problem can be solved by using the
 ![equation](https://latex.codecogs.com/svg.image?f) from training datasets instead of prediction.
 What we want to discuss is the question that **how to avoid the NN prediction goes to 0 to 
 satisfy the physics term**. 
-We tried to decrease the weight of the physics term, but it doesn't work.
+We tried to decrease the weight of the physics term, and it works when the weight decreases to **1e-4**. Thi problem is 
+mentioned in [when and why PINNs fail to train](https://www.sciencedirect.com/science/article/pii/S002199912100663X).
 - Trained ont he with the datasets generated with the same Bessel kernel where 
 ![equation](https://latex.codecogs.com/svg.image?k=2), the PINN can have 
 different value of 
 ![equation](https://latex.codecogs.com/svg.image?\nu) which should be the converged at a same 
 value except the value of 
-![equation](https://latex.codecogs.com/svg.image?k) changed. **There maybe something wrong with the 
-code or the theory.**
+![equation](https://latex.codecogs.com/svg.image?k) changed. 
+After checking we found the value of ![equation](https://latex.codecogs.com/svg.image?\nu) is 
+ diverge from 
+![equation](https://latex.codecogs.com/svg.image?k=2), most likely to be around 2.0.
+**There maybe something wrong with the code or the theory.** 
 
     
 | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |

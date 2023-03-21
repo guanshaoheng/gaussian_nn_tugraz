@@ -43,11 +43,13 @@ def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1):
 
 def data_save(x, y, y_noise, save_path='xy_data'):
     check_mkdir(save_path)
-    np.save(os.path.join(save_path, 'x.npy'), x)
+    x_name = os.path.join(save_path, 'x.npy')
+    np.save(x_name, x)
     np.save(os.path.join(save_path, 'y.npy'), y)
     np.save(os.path.join(save_path, 'y_noise.npy'), y_noise)
     index = np.random.permutation(np.arange(len(x)))
     np.save(os.path.join(save_path, 'index.npy'), index)
+    echo('Data saved as %s' % x_name)
 
 
 def data_load(save_path = 'xy_data'):
