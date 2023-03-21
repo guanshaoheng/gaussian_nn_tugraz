@@ -36,7 +36,6 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
     return np.array(loss_list)
 
 
-
 def plot_loss(mode_list, loss_dic: dict):
     for mode in mode_list:
         epoch = loss_dic[mode][:, 0]

@@ -35,8 +35,24 @@ and **PCNN
 sin()** activation, respectively.
 
 ## Problem during training the PINN
-We found the optimization concentrated too much on the optimization of the physics term 
-![equation](<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi mathvariant="normal">Δ</mi><mi>f</mi><mo>+</mo><msup><mi>s</mi><mn>2</mn></msup><mi>f</mi><mo>=</mo><mn>0</mn></math>)
+- We found the optimization concentrated too much on the optimization of the physics term 
+![equation](https://latex.codecogs.com/svg.image?\Delta&space;f&space;&plus;&space;\nu^2&space;f=0).
+This will result in the prediction of 
+![equation](https://latex.codecogs.com/svg.image?f) 
+to be 0 if we are using the predicted 
+![equation](https://latex.codecogs.com/svg.image?f) in the physical term.
+While, this problem can be solved by using the 
+![equation](https://latex.codecogs.com/svg.image?f) from training datasets instead of prediction.
+What we want to discuss is the question that **how to avoid the NN prediction goes to 0 to 
+satisfy the physics term**. 
+We tried to decrease the weight of the physics term, but it doesn't work.
+- Trained ont he with the datasets generated with the same Bessel kernel where 
+![equation](https://latex.codecogs.com/svg.image?k=2), the PINN can have 
+different value of 
+![equation](https://latex.codecogs.com/svg.image?\nu) which should be the converged at a same 
+value except the value of 
+![equation](https://latex.codecogs.com/svg.image?k) changed. **There maybe something wrong with the 
+code or the theory.**
 
     
 | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |
