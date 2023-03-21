@@ -25,8 +25,21 @@ better against the noises.
 
 
 # 2-D Helmholtz equations
-First, the training datasets is generated via Random Gaussian Process, whose kernel is the [Bessel function](https://en.wikipedia.org/wiki/Bessel_function)
-![equation](https://latex.codecogs.com/svg.image?J_0(k\|\mathbf{x}&space;-\mathbf{x}'&space;\|)), and **noise=0.1**.
+First, the training datasets is generated via Random Gaussian Process, whose kernel is 
+the [Bessel function](https://en.wikipedia.org/wiki/Bessel_function)
+![equation](https://latex.codecogs.com/svg.image?J_0(k\|\mathbf{x}&space;-\mathbf{x}'&space;\|)), 
+and **noise=0.1**.
+
+The data-driven term of the loss function is 
+![equation](https://latex.codecogs.com/svg.image?\|y-\hat{y}\|^2) which is the loss function 
+for **vanilla NN** and **physics-constrained NN**. 
+The physics term of the loss function is 
+![equation](https://latex.codecogs.com/svg.image?\Delta&space;f&plus;\nu^2f). Then the loss function 
+in the **PINN** work is 
+![eqiation](https://latex.codecogs.com/svg.image?\|y-\hat{y}\|^2&space;&plus;&space;\lambda&space;(\Delta&space;f&plus;\nu^2f))
+, where 
+![eqiation](https://latex.codecogs.com/svg.image?\lambda) is the weight of the physics term.
+
 
 Only 0.2 of the training datasets with noises are fed into the training process.
 
