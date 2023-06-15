@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-from torch.special import i0
 
 
 class net_basic(torch.nn.Module):
@@ -28,26 +27,28 @@ class net_basic(torch.nn.Module):
         '''
            rand is regard to the uniform distribution U[0, 1]
            and randn is normal N[0, 1]
-           
+
            I think we are going to use the randn here to generate the gaussiance distributed $v_k$ ?
         '''
         self.w_k = torch.nn.Parameter(
-            torch.randn(size=[self.in_features, self.width])/np.sqrt(self.width), requires_grad=True)
+            torch.randn(size=[self.in_features, self.width]) / np.sqrt(self.width), requires_grad=True)
         self.a_k = torch.nn.Parameter(
-            torch.randn(size=[self.width])/np.sqrt(self.width), requires_grad=True)
+            torch.randn(size=[self.width]) / np.sqrt(self.width), requires_grad=True)
         self.v_k = torch.nn.Parameter(
-            torch.randn(size=[self.width, 1])/np.sqrt(self.width), requires_grad=True)
+            torch.randn(size=[self.width, 1]) / np.sqrt(self.width), requires_grad=True)
         # self.v_k = torch.randn(size=[self.width, 1], requires_grad=False)
         if mode == 'vanilla':
+            # self.activation = self.bessel0_activation
             self.activation = torch.nn.ReLU()
             # self.activation = torch.nn.Sigmoid()
         elif mode == 'physics_informed':
-            # self.activation = self.cos_activaton
+            # self.activation = torch.nn.ReLU()
             self.activation = torch.nn.Sigmoid()
             # self.activation = torch.nn.Tanh()
+
         elif mode == 'physics_constrained':
-            self.activation = self.cos_activaton
-            # self.activation = self.bessel0_activation
+            # self.activation = self.cos_activaton
+            self.activation = self.bessel0_activation
         # self.activation_other = torch.nn.Tanh()
         else:
             raise ValueError
@@ -63,26 +64,26 @@ class net_basic(torch.nn.Module):
         # y = self.nns[1](self.activation(self.nns[0](x)))
         # temp = x @ self.w_k
         n = len(self.nns)
-        for i in range(n-1):
+        for i in range(n - 1):
             x = self.activation(self.nns[i](x))
-        y = self.nns[n-1](x)
+        y = self.nns[n - 1](x)
         # y = self.activation(x@self.w_k + self.a_k) @ self.v_k
         return y
 
     def cos_activaton(self, x):
         # return self.activation_other(x)
-        return torch.cos_(x)
+        return torch.cos(x)
 
     def bessel0_activation(self, x):
-        # t = torch.ones_like(x)
-        # s_um = torch.ones_like(x)
-        # x_half_2 = (10 * x / 2)**2
-        # for i in range(1, 40):
-        #     t *= -x_half_2/i**2
-        #     s_um += t
-        x = torch.special.bessel_j0(x)
-        return x
-
+        t = torch.ones_like(x)
+        s_um = torch.ones_like(x)
+        x_half_2 = ( x / 2)**2
+        for i in range(1, 40):
+            t *= -x_half_2/i**2
+            s_um += t
+        # x_temp = 4. * x
+        # s_um_0 = torch.special.bessel_j0(x)
+        return s_um
 
     def forward_ddy(self, x):
         '''

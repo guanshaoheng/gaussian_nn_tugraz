@@ -27,6 +27,12 @@ def kernel_cos(x, k=1.):
     return K
 
 
+def kernel_rbf(x1, x2, sig=1.0, l=1.0):
+    x1 = x1.reshape(-1, 1)
+    x2 = x2.reshape(-1, 1)
+    K = sig**2 * np.exp(-(x1 - x2.T)**2/(2*l**2))
+    return K
+
 def show_the_gp(x, y, y_noise):
     # x, y, y_noise = gaussian_data_gen()
     plt.plot(x, y, label='Truth')

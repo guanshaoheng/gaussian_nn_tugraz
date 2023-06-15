@@ -1,6 +1,5 @@
 import os.path
-
-from NN_models.network import net_basic
+from NN_model import net_basic
 import torch
 import numpy as np
 from utils_general.utils import echo
@@ -16,13 +15,13 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
     loss_list = []
     for epoch in range(num_epoch):
         optim.zero_grad()
-        if mode != 'physics_informed':
+        if mode == 'vanilla' or mode == 'physics_constrained':
             y_pre = model.forward(x_tensor)
             loss = loss_operator(y_tensor, y_pre)
         else:
             y_pre, ddy_pre = model.forward_ddy(x_tensor)
             loss = loss_operator(y_pre, y_tensor) + \
-                   0.0001 * loss_operator(ddy_pre.sum(-1, keepdim=True), -model.nu**2. * y_pre)
+                   0.00001 * loss_operator(ddy_pre.sum(-1, keepdim=True), -model.nu**2. * y_pre)
                    # 0.0001 * loss_operator(ddy_pre.sum(-1, keepdim=True), -model.nu**2. * y_pre)
             '''
                 NOTE: the lambda here should be carefully selected according to 

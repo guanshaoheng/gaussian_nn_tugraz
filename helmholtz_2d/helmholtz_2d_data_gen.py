@@ -6,10 +6,10 @@ from kernel_2d import kernel_bessel_2d, input_2d
 from utils_general.utils import echo, check_mkdir
 
 
-def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1):
+def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1, k=4.0):
     x, X, Y = input_2d(num=n)
     if gaussian_flag:
-        kernel = kernel_bessel_2d(x=x, k=2.0)
+        kernel = kernel_bessel_2d(x=x, k=k)
         y = np.random.multivariate_normal(mean=np.zeros(n**2), cov=kernel)
     else:
         omega = 2.0

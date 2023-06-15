@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from kernel_2d import input_2d
 from helmholtz_2d_data_gen import data_gen, data_save, data_load
-from NN_models.train_nn import single_train, plot_loss
+from train_nn import single_train, plot_loss
 import matplotlib.pyplot as plt
 
 
@@ -15,11 +15,11 @@ def main(num_epoch=20000, ratio=0.2, save_path = 'xy_data'):
     index = index[: int(num_samples*ratio)]
     y_noise = y_noise[:, np.newaxis]
     # y_noise = y[:, np.newaxis]
-    mode_list = ['vanilla', 'physics_informed', 'physics_constrained']
+    mode_list = [ 'physics_constrained', 'physics_informed',  'vanilla', ]
     loss_dic = {}
     for mode in mode_list:
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
-        loss_dic[mode] = single_train(x=x[index], y=y_noise[index], mode=mode, width=10, num_epoch=num_epoch)
+        loss_dic[mode] = single_train(x=x[index], y=y_noise[index], mode=mode, width=100, num_epoch=num_epoch)
         test_single_trained_model(mode=mode)
     #
     plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path)
