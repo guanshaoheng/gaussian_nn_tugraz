@@ -61,23 +61,29 @@ satisfy the physics term**.
 We tried to decrease the weight of the physics term, and it works when the weight decreases to **1e-4**. Thi problem is 
 mentioned in [when and why PINNs fail to train](https://www.sciencedirect.com/science/article/pii/S002199912100663X).
 - Trained ont he with the datasets generated with the same Bessel kernel where 
-![equation](https://latex.codecogs.com/svg.image?k=2), the PINN can have 
+![equation](https://latex.codecogs.com/svg.image?k=4), the PINN can have 
 different value of 
-![equation](https://latex.codecogs.com/svg.image?\nu) which should be the converged at a same 
+![equation](https://latex.codecogs.com/svg.image?\nu=3.24) which should be the converged at a same 
 value except the value of 
 ![equation](https://latex.codecogs.com/svg.image?k) changed. 
 After checking we found the value of ![equation](https://latex.codecogs.com/svg.image?\nu) is 
  diverge from 
-![equation](https://latex.codecogs.com/svg.image?k=2), most likely to be around 2.0.
-**There maybe something wrong with the code or the theory.** 
+![equation](https://latex.codecogs.com/svg.image?k=4) slightly because of the noises in the datasets.
+
+- During the optimisation process, an early stop algorithm was used to prevent overfitting: the optimisation 
+ was stopped when the accuracy on the test set was no longer improving. As can be seen from the training 
+ error plot, the model achieves better test accuracy on the noisy data set by introducing a physics. 
+ **The NN with physics activation corresponds to the best results for the cases.** This can also be visually proved 
+ by the figures of the cut lines.
+
 
     
 | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_noise.png) | ![space-1.jpg](./helmholtz_2d/xy_data/contourf_helmholtz_Truth.png) |
 |:--:| :--:| 
 | **Training datasets with noise (2-D)** |**Training datasets without noise (2-D)**|
-| ![space-1.jpg](./helmholtz_2d/xy_data/training_loss.png) | ![space-1.jpg](./helmholtz_2d/xy_data/vanilla.png) |
+| ![space-1.jpg](./helmholtz_2d/xy_data/training_loss.png) | ![space-1.jpg](./helmholtz_2d/xy_data/Vanilla.png) |
 | **Training loss (2-D)** |**Vanilla prediction (2-D)**|
-| ![space-1.jpg](./helmholtz_2d/xy_data/physics_informed.png) | ![space-1.jpg](./helmholtz_2d/xy_data/physics_constrained.png) |
+| ![space-1.jpg](./helmholtz_2d/xy_data/Physics-informed.png) | ![space-1.jpg](./helmholtz_2d/xy_data/Physics-constrained.png) |
 | **physics_informed prediction (2-D)** |**physics_constrained prediction (2-D)**|
 
 
