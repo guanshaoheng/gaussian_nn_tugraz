@@ -6,6 +6,9 @@ from kernel_2d import kernel_bessel_2d, input_2d
 from utils_general.utils import echo, check_mkdir
 
 
+np.random.seed(10001)
+
+
 def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1, k=4.0):
     x, X, Y = input_2d(num=n)
     if gaussian_flag:
@@ -22,6 +25,7 @@ def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1, k=4.0):
     data_save(x=x, y=y, y_noise=y_noise)
 
     # plot the data Truth
+    fig = plt.figure()
     plt.contourf(X, Y, y.reshape(n, n))
     plt.colorbar()
     plt.tight_layout()
@@ -31,6 +35,7 @@ def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1, k=4.0):
     plt.close()
 
     # plot the data noise
+    fig = plt.figure()
     plt.contourf(X, Y, y_noise.reshape(n, n))
     plt.colorbar()
     plt.tight_layout()

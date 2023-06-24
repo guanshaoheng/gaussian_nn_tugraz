@@ -1,25 +1,50 @@
 import os.path
-from utils_general.utils import echo, check_mkdir
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
+
+from helmholtz_2d_data_gen import data_load
 from kernel_2d import input_2d
-from helmholtz_2d_data_gen import data_gen, data_save, data_load
 from train_nn import single_train, plot_loss
-import matplotlib.pyplot as plt
+from utils_general.utils import echo
+
+# plot configuration
+mpl.rcParams['figure.dpi'] = 100
+# fix random seeds
+axes = {'labelsize': 'large'}
+font = {'family': 'serif',
+        'weight': 'normal',
+        'size': 17}
+legend = {'fontsize': 15}
+lines = {'linewidth': 3,
+         'markersize': 7}
+mpl.rc('font', **font)
+mpl.rc('axes', **axes)
+mpl.rc('legend', **legend)
+mpl.rc('lines', **lines)
 
 
-def main(num_epoch=20000, ratio=0.2, save_path = 'xy_data'):
+def main(
+        num_epoch=20000,  # 20000,
+        ratio=0.2,
+        save_path='xy_data'):
     x, y, y_noise, index = data_load(save_path=save_path)
-    # y = y[:, np.newaxis]
+    y = y[:, np.newaxis]
     num_samples = len(x)
-    index = index[: int(num_samples*ratio)]
+    index_train = index[: int(num_samples * ratio)]
+    index_test = index[-int(num_samples * ratio):]
     y_noise = y_noise[:, np.newaxis]
     # y_noise = y[:, np.newaxis]
-    mode_list = [ 'physics_constrained', 'physics_informed',  'vanilla', ]
+    mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
     loss_dic = {}
     for mode in mode_list:
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
-        loss_dic[mode] = single_train(x=x[index], y=y_noise[index], mode=mode, width=100, num_epoch=num_epoch)
+        loss_dic[mode] = single_train(
+            x=x[index_train], y=y_noise[index_train],
+            x_test=x[index_test], y_test=y_noise[index_test],
+            mode=mode, width=100, num_epoch=num_epoch)
         test_single_trained_model(mode=mode)
     #
     plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path)
@@ -27,8 +52,7 @@ def main(num_epoch=20000, ratio=0.2, save_path = 'xy_data'):
     # test(x=x, y=y, mode_list=mode_list)
 
 
-def test_single_trained_model(n=20, mode='vanilla', fig_save_path='xy_data'):
-
+def test_single_trained_model(n=20, mode='Vanilla', fig_save_path='xy_data'):
     x_train, y_train, y_noise, index = data_load(save_path='xy_data')
 
     model = torch.load('%s.pt' % mode)
@@ -47,9 +71,9 @@ def test_single_trained_model(n=20, mode='vanilla', fig_save_path='xy_data'):
     plt.close()
 
     # error plot
-    plt.contourf(X, Y, np.abs(z.reshape(n, n) - y_train.reshape(n, n )))
+    plt.contourf(X, Y, np.abs(z.reshape(n, n) - y_train.reshape(n, n)))
     plt.colorbar()
-    plt.title('error_%s' % mode)
+    # plt.title('error_%s' % mode)
     plt.tight_layout()
     fig_name = os.path.join(fig_save_path, '%s_error.png' % mode)
     plt.savefig(fig_name, dpi=200)
@@ -64,7 +88,7 @@ def test_single_trained_model(n=20, mode='vanilla', fig_save_path='xy_data'):
 
 
 def plot_cut_line(n=20, save_path='xy_data'):
-    mode_list = ['vanilla', 'physics_informed', 'physics_constrained']
+    mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained']
     x_train, y_train, y_noise, index = data_load(save_path='xy_data')
     x_test, X, Y = input_2d(min_=-1, max_=1, num=n)
     z_list = [np.load(os.path.join(save_path, '%s_pre.npy' % mode)) for mode in mode_list]
@@ -77,9 +101,11 @@ def plot_cut_line(n=20, save_path='xy_data'):
         # plt.plot(X[0], y_noise_cut, label='Training_noise')
         for i, mode in enumerate(mode_list):
             z_cut = z_list[i].reshape(n, n)[cut_n, :]
-            plt.plot(X[0], z_cut, label='prediction_%s' % mode)
+            plt.plot(X[0], z_cut, label='%s' % mode)
         plt.title('Cut at the y=%.2f' % posi_y)
         plt.legend()
+        plt.xlabel('X')
+        plt.ylabel('Predicted value')
         plt.tight_layout()
         fig_name = os.path.join(save_path, 'error_cut_%.2f.png' % (posi_y))
         plt.savefig(fig_name, dpi=200)

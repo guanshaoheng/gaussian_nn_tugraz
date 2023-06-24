@@ -6,16 +6,24 @@ from utils_general.utils import echo
 import matplotlib.pyplot as plt
 
 
-def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
+def single_train(
+        x, y,
+        x_test, y_test,
+        num_epoch, mode='Physics-constrained', width=10, patience=20):
     # x, y = dataset_gen()
     model = net_basic(in_features=len(x[0]), out_features=len(y[0]), mode=mode, width=width)
     optim = torch.optim.Adam(model.parameters())
     loss_operator = torch.nn.MSELoss()
     x_tensor, y_tensor = torch.from_numpy(x).float(), torch.from_numpy(y).float()
+    x_test_tensor = torch.from_numpy(x_test).float()
+    y_test_tensor = torch.from_numpy(y_test).float()
+
+    try_num = 0
+    max_err = 1e5
     loss_list = []
     for epoch in range(num_epoch):
         optim.zero_grad()
-        if mode == 'vanilla' or mode == 'physics_constrained':
+        if mode == 'Vanilla' or mode == 'Physics-constrained':
             y_pre = model.forward(x_tensor)
             loss = loss_operator(y_tensor, y_pre)
         else:
@@ -32,11 +40,22 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
         optim.step()
         if epoch % 100 == 0:
             loss = loss_operator(y_pre, y_tensor)
-            line = 'Epoch %d The current loss is %.3e %s' % (epoch, loss.item(), mode)
-            if 'physics' in mode:
+            y_pre_test = model.forward(x_test_tensor)
+            loss_test = loss_operator(y_pre_test, y_test_tensor)
+            line = 'Epoch %d The current loss is %.3e test_loss: %.3e %s' % (epoch, loss.item(), loss_test.item(), mode)
+            if max_err>loss_test:
+                max_err = loss_test
+                try_num = 0
+                line += ' improved!'
+            else:
+                try_num += 1
+                line += ' NoImpr.'
+            if 'Physics' in mode:
                 line += ' nu=%.2f' % model.nu.item()
             print(line)
-            loss_list.append([epoch, loss.item()])
+            loss_list.append([epoch, loss.item(), loss_test.item()])
+            if try_num>=patience:
+                break
     name_model = '%s.pt' % mode
     torch.save(model, f=name_model)
     echo('model saved as %s' % name_model)
@@ -44,11 +63,16 @@ def single_train(x, y, num_epoch, mode='physics_constrained', width=10):
 
 
 def plot_loss(mode_list, loss_dic: dict, save_path: str=None):
-    for mode in mode_list:
+    color_list = ['tab:blue', 'tab:orange', 'tab:green']
+    for i, mode in enumerate(mode_list):
         epoch = loss_dic[mode][:, 0]
         loss = loss_dic[mode][:, 1]
-        plt.plot(epoch, loss, label=mode)
+        loss_true = loss_dic[mode][:, 2]
+        plt.plot(epoch/1e3, loss, c=color_list[i], label=mode)
+        plt.plot(epoch/1e3, loss_true, '--', c=color_list[i], zorder=10)
     plt.yscale('log')
+    plt.xlabel('Epoch/1e3')
+    plt.ylabel('Error')
     plt.legend()
     plt.tight_layout()
     if save_path is not None:

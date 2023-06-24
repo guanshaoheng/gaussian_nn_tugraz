@@ -46,8 +46,8 @@ class net_basic(torch.nn.Module):
             self.activation = torch.nn.Sigmoid()
             # self.activation = torch.nn.Tanh()
         elif mode == 'physics_constrained':
-            self.activation = self.cos_activaton
-            # self.activation = self.bessel0_activation
+            # self.activation = self.cos_activaton
+            self.activation = self.bessel0_activation
         # self.activation_other = torch.nn.Tanh()
         else:
             raise ValueError
@@ -74,13 +74,13 @@ class net_basic(torch.nn.Module):
         return torch.cos_(x)
 
     def bessel0_activation(self, x):
-        # t = torch.ones_like(x)
-        # s_um = torch.ones_like(x)
-        # x_half_2 = (10 * x / 2)**2
-        # for i in range(1, 40):
-        #     t *= -x_half_2/i**2
-        #     s_um += t
-        x = torch.special.bessel_j0(x)
+        t = torch.ones_like(x)
+        s_um = torch.ones_like(x)
+        x_half_2 = (10 * x / 2)**2
+        for i in range(1, 20):
+            t *= -x_half_2/i**2
+            s_um += t
+        # x = torch.special.bessel_j0(x)
         return x
 
 
