@@ -3,11 +3,14 @@ import numpy as np
 
 
 class net_basic(torch.nn.Module):
-    def __init__(self, in_features=1, out_features=1, width=100, bias_flag=False, mode='vanilla'):
+    def __init__(
+            self, in_features=1, out_features=1, width=100, bias_flag=False, mode='Vanilla',
+            one_d_flag=False):
         super(net_basic, self).__init__()
         self.mode = mode
         self.in_features = in_features
         self.out_features = out_features
+        self.one_d_flag =one_d_flag
         self.width = width
         self.bias_flag = bias_flag
         self.nns = torch.nn.ModuleList([
@@ -31,22 +34,20 @@ class net_basic(torch.nn.Module):
            I think we are going to use the randn here to generate the gaussiance distributed $v_k$ ?
         '''
         self.w_k = torch.nn.Parameter(
-            torch.rand(size=[self.in_features, self.width]) / np.sqrt(self.width), requires_grad=True)
+            torch.rand(size=[self.in_features, self.width]) / np.sqrt(self.in_features), requires_grad=True)
         self.a_k = torch.nn.Parameter(
-            torch.rand(size=[self.width]) / np.sqrt(self.width), requires_grad=True)
+            torch.rand(size=[self.width]) / np.sqrt(self.in_features), requires_grad=True)
         self.v_k = torch.nn.Parameter(
             torch.rand(size=[self.width, 1]) / np.sqrt(self.width), requires_grad=True)
         # self.v_k = torch.randn(size=[self.width, 1], requires_grad=False)
         if mode == 'Vanilla':
             self.activation = torch.nn.ReLU()
         elif mode == 'Physics-informed':
-            # self.activation = torch.nn.ReLU()
-            # self.activation = torch.nn.Sigmoid()
             self.activation = torch.nn.Tanh()
 
         elif mode == 'Physics-constrained':
             # self.activation = self.cos_activaton
-            self.activation = self.bessel0_activation
+            self.activation = self.bessel0_activation if not self.one_d_flag  else self.sin_activaton
         # self.activation_other = torch.nn.Tanh()
         else:
             raise ValueError
@@ -68,9 +69,9 @@ class net_basic(torch.nn.Module):
         y = self.activation(x@self.w_k + self.a_k) @ self.v_k
         return y
 
-    def cos_activaton(self, x):
+    def sin_activaton(self, x):
         # return self.activation_other(x)
-        return torch.cos(x)
+        return torch.sin(x)
 
     def bessel0_activation(self, x):
         t = torch.ones_like(x)

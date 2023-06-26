@@ -39,9 +39,10 @@ def main(
     # y_noise = y[:, np.newaxis]
     mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
     loss_dic = {}
+    nu_dic = {}
     for mode in mode_list:
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
-        loss_dic[mode] = single_train(
+        loss_dic[mode], nu_dic[mode] = single_train(
             x=x[index_train], y=y_noise[index_train],
             x_test=x[index_test], y_test=y_noise[index_test],
             mode=mode, width=100, num_epoch=num_epoch)
@@ -60,7 +61,9 @@ def test_single_trained_model(n=20, mode='Vanilla', fig_save_path='xy_data'):
     x_test, X, Y = input_2d(min_=-1, max_=1, num=n)
     with torch.no_grad():
         z = model.forward(torch.from_numpy(x_test).float()).numpy()
-        plt.contourf(X, Y, z.reshape(n, n))
+        plt.contourf(X, Y, z.reshape(n, n), cmap = 'RdBu',
+                             vmin = -3.0,
+                             vmax = 2.4)
     plt.colorbar()
     plt.tight_layout()
     fig_name = os.path.join(fig_save_path, '%s.png' % mode)
@@ -71,7 +74,9 @@ def test_single_trained_model(n=20, mode='Vanilla', fig_save_path='xy_data'):
     plt.close()
 
     # error plot
-    plt.contourf(X, Y, np.abs(z.reshape(n, n) - y_train.reshape(n, n)))
+    plt.contourf(X, Y, np.abs(z.reshape(n, n) - y_train.reshape(n, n)), cmap = 'RdBu',
+                             vmin = -3.0,
+                             vmax = 2.4)
     plt.colorbar()
     # plt.title('error_%s' % mode)
     plt.tight_layout()

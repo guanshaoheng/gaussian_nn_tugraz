@@ -71,8 +71,9 @@ After checking we found the value of ![equation](https://latex.codecogs.com/svg.
 ![equation](https://latex.codecogs.com/svg.image?k=4) slightly because of the noises in the datasets.
 
 - During the optimisation process, an early stop algorithm was used to prevent overfitting: the optimisation 
- was stopped when the accuracy on the test set was no longer improving. As can be seen from the training 
- error plot, the model achieves better test accuracy on the noisy data set by introducing a physics. 
+ was stopped when the accuracy on the test set was no longer improving. In the figure of error evolution, 
+ the dashed lines are test errors and the solid lines are training errors. The model achieves better test accuracy 
+on the noisy data set by introducing a physics. 
  **The NN with physics activation corresponds to the best results for the cases.** This can also be visually proved 
  by the figures of the cut lines.
 
