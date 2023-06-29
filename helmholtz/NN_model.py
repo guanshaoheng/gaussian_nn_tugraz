@@ -1,28 +1,31 @@
-import torch
 import numpy as np
+import torch
 
 
 class net_basic(torch.nn.Module):
     def __init__(
             self, in_features=1, out_features=1, width=100, bias_flag=False, mode='Vanilla',
             one_d_flag=False,
-            green_activation_for_pcnn_2d = False,
+            green_activation_for_pcnn_2d=False,
     ):
         super(net_basic, self).__init__()
         self.mode = mode
         self.in_features = in_features
         self.out_features = out_features
-        self.one_d_flag =one_d_flag
+        self.one_d_flag = one_d_flag
         self.width = width
         self.bias_flag = bias_flag
-        self.nns = torch.nn.ModuleList([
-            torch.nn.Linear(in_features=self.in_features, out_features=self.width, bias=True),
-            # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
-            # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
-            # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
-            torch.nn.Linear(in_features=self.width, out_features=self.out_features, bias=False),
-        ])
+        # self.nns = torch.nn.ModuleList([
+        #     torch.nn.Linear(in_features=self.in_features, out_features=self.width, bias=True),
+        #     # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
+        #     # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
+        #     # torch.nn.Linear(in_features=self.width, out_features=self.width, bias=True),
+        #     torch.nn.Linear(in_features=self.width, out_features=self.out_features, bias=False),
+        # ])
         # self.nns[1].requires_grad_(False)
+
+        # self.l1 = torch.nn.Linear(in_features=self.in_features, out_features=self.width * 2, bias=True)
+        # self.l2 = torch.nn.Linear(in_features=self.width, out_features=self.out_features, bias=False)
         r'''
             the $\nu$ in Eq. (13) is set to be optimized to realize the $\alpha$ in Eq. (14)
         '''
@@ -47,12 +50,22 @@ class net_basic(torch.nn.Module):
         elif mode == 'Physics-informed':
             self.activation = torch.nn.Tanh()
 
-        elif mode == 'Physics-constrained':
+        elif mode == 'Physics-consistent':
             # self.activation = self.cos_activaton
             self.activation = self.bessel0_activation if not self.one_d_flag else self.sin_activaton
             if green_activation_for_pcnn_2d:
-                print('\n\n' + '-'*60 + '\n' + 'Green function used as the activation!')
-                self.activation = self.green_activation
+                print('\n\n' + '-' * 60 + '\n' + 'Green function used as the activation!')
+                # self.w_k = torch.nn.Parameter(
+                #     torch.rand(size=[self.in_features, self.width*2]) / np.sqrt(self.in_features), requires_grad=True)
+                # self.a_k = torch.nn.Parameter(
+                #     torch.rand(size=[self.width*2]) / np.sqrt(self.in_features), requires_grad=True)
+                # self.l1_x = torch.nn.Linear(in_features=self.in_features, out_features=self.width)
+                # self.l1_y = torch.nn.Linear(in_features=self.in_features, out_features=self.width)
+                # self.l2 = torch.nn.Linear(in_features=self.width, out_features=self.out_features)
+                self.nn_x = net_x(in_features=1, width=self.width, bias_flag=True)
+                self.nn_y = net_x(in_features=1, width=self.width, bias_flag=True)
+                self.l2 = torch.nn.Linear(in_features=self.width, out_features=self.out_features)
+                self.forward = self.forward_green
         # self.activation_other = torch.nn.Tanh()
         else:
             raise ValueError
@@ -63,16 +76,15 @@ class net_basic(torch.nn.Module):
         :param x: in shape of (num_samples, in_features)
         :return:
         '''
-        # y = self.activation(self.nns[0](x)) @ self.v_k
-        # y = self.nns[2](self.activation(self.nns[1](self.activation(self.nns[0](x)))))
-        # y = self.nns[1](self.activation(self.nns[0](x)))
-        # temp = x @ self.w_k
-        # n = len(self.nns)
-        # for i in range(n - 1):
-        #     x = self.activation(self.nns[i](x))
-        # y = self.nns[n - 1](x)
-        y = self.activation(x@self.w_k + self.a_k) @ self.v_k
+
+        y = self.activation(x @ self.w_k + self.a_k) @ self.v_k
         return y
+
+    def forward_green(self, x):  # x in shape of ((number of samples, 2))
+        x_ = self.nn_x(x[:, 0:1])  # in shape of (number of samples, width)
+        y_ = self.nn_y(x[:, 1:2])  # in shape of (number of samples, width)
+        output = self.l2(self.green_activation(x_, y_))  # in shape of (number of samples, 1)
+        return output
 
     def sin_activaton(self, x):
         # return self.activation_other(x)
@@ -81,17 +93,19 @@ class net_basic(torch.nn.Module):
     def bessel0_activation(self, x):
         t = torch.ones_like(x)
         s_um = torch.ones_like(x)
-        x_half_2 = ( x / 2)**2
+        x_half_2 = (x / 2) ** 2
         for i in range(1, 40):
-            t *= -x_half_2/i**2
+            t *= -x_half_2 / i ** 2
             s_um += t
         # s_um = torch.special.bessel_j0(x)
         return s_um
 
-    def green_activation(self, x):
-        h_real = torch.cos(x)/x
-        h_imagin = torch.sin(x)/x  # there is no where to times the
-                                   # imaginary part together as this is a single hidden layer NN
+    def green_activation(self, x, y):
+        # r = torch.linalg.norm(x, d)
+        r = torch.sqrt(x ** 2 + y ** 2 + 1e-8)       # in shape of (number of samples, width)
+        h_real = torch.cos(r) # / (r * 4. * torch.pi)  # in shape of (number of samples, width)
+        # h_imagin = torch.sin(x)/x  # i*i # there is no where to times the
+        # imaginary part together as this is a single hidden layer NN
         return h_real
 
     def forward_ddy(self, x):
@@ -119,3 +133,14 @@ class net_basic(torch.nn.Module):
         ddy = torch.autograd.functional.jacobian(dy_pre, g)
 
         return y, ddy
+
+
+class net_x(torch.nn.Module):
+    def __init__(
+            self, in_features=1, out_features=1, width=100, bias_flag = True
+    ):
+        super(net_x, self).__init__()
+        self.l1 = torch.nn.Linear(in_features=in_features, out_features=width, bias=True)
+
+    def forward(self, x):
+        return self.l1(x)

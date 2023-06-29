@@ -9,7 +9,7 @@ import os
 
 np.random.seed(10000)
 fig_save_path = 'xy_data'
-mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
+mode_list = ['Vanilla', 'Physics-informed', 'Physics-consistent', ]
 # mode_list = [ 'Physics-informed' ]
 
 
@@ -43,7 +43,7 @@ index_train = index_random[:int(0.3 * nx)]
 index_test = index_random[-int(0.2 * nx):]
 plt.plot(x, y, label='Truth')
 plt.scatter(x[index_train], y_noise[index_train], c='g', marker='x', label='Train sets')
-plt.scatter(x[index_test], y_noise[index_test], c='k', marker='o', label='Test sets')
+plt.scatter(x[index_test], y_noise[index_test], c='k', marker='o', label='Validation sets')
 plt.legend()
 plt.xlabel(r'$x$')
 plt.ylabel(r'$y$')
@@ -65,7 +65,7 @@ def main(
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
         loss_dic[mode], nu_dic[mode] = single_train(
             x=x_temp[index_train], y=y_noise_temp[index_train],
-            x_test=x_temp[index_test], y_test=y_noise_temp[index_test],
+            x_validation=x_temp[index_test], y_validation=y_noise_temp[index_test],
             mode=mode, width=100, num_epoch=num_epoch, one_d_flag=True)
     test_trained_model()
     #
@@ -120,4 +120,6 @@ def plot_nu(loss, nu_arr, ond_d_flag=False):
     plt.close()
 
 
-main()
+if __name__ == '__main__':
+    # main()
+    print()

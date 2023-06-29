@@ -10,6 +10,10 @@ from kernel_2d import input_2d
 from train_nn import single_train, plot_loss
 from utils_general.utils import echo
 
+
+np.random.seed(10000)
+torch.manual_seed(9999)
+
 # plot configuration
 mpl.rcParams['figure.dpi'] = 100
 # fix random seeds
@@ -25,20 +29,23 @@ mpl.rc('axes', **axes)
 mpl.rc('legend', **legend)
 mpl.rc('lines', **lines)
 
+#TODO did not finished generalization on 2d
 
 def main(
         num_epoch=20000,  # 20000,
         ratio=0.2,
         save_path='xy_data'):
     x, y, y_noise, index = data_load(save_path=save_path)
+
     y = y[:, np.newaxis]
     num_samples = len(x)
     index_train = index[: int(num_samples * ratio)]
-    index_test = index[-int(num_samples * ratio):]
+    # index_test = index[: int(num_samples * ratio)]
+    index_validation = index[-int(num_samples * ratio):]
     y_noise = y_noise[:, np.newaxis]
     # y_noise = y[:, np.newaxis]
-    # mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
-    mode_list = ['Physics-constrained', ]
+    mode_list = ['Vanilla', 'Physics-informed', 'Physics-consistent', ]
+    # mode_list = ['Physics-consistent', ]
     green_activation_for_pcnn_2d = True
     loss_dic = {}
     nu_dic = {}
@@ -46,7 +53,7 @@ def main(
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
         loss_dic[mode], nu_dic[mode] = single_train(
             x=x[index_train], y=y_noise[index_train],
-            x_test=x[index_test], y_test=y_noise[index_test],
+            x_validation=x[index_validation], y_validation=y_noise[index_validation],
             mode=mode, width=100, num_epoch=num_epoch,
             green_activation_for_pcnn_2d=green_activation_for_pcnn_2d)
         test_single_trained_model(mode=mode)
@@ -71,7 +78,7 @@ def test_single_trained_model(n=20, mode='Vanilla', fig_save_path='xy_data'):
     plt.tight_layout()
     fig_name = os.path.join(fig_save_path, '%s.png' % mode)
     if 'informed' in mode:
-        plt.title(r'$\nu=%.2f$' % model.nu)
+        plt.title(r'$k=%.2f$' % model.nu)
     plt.savefig(fig_name, dpi=200)
     echo('fig saved as %s' % fig_name)
     plt.close()
@@ -96,7 +103,7 @@ def test_single_trained_model(n=20, mode='Vanilla', fig_save_path='xy_data'):
 
 
 def plot_cut_line(n=20, save_path='xy_data'):
-    mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained']
+    mode_list = ['Vanilla', 'Physics-informed', 'Physics-consistent']
     x_train, y_train, y_noise, index = data_load(save_path='xy_data')
     x_test, X, Y = input_2d(min_=-1, max_=1, num=n)
     z_list = [np.load(os.path.join(save_path, '%s_pre.npy' % mode)) for mode in mode_list]

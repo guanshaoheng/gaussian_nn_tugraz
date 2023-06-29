@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 
 def single_train(
         x, y,
-        x_test, y_test,
+        x_validation, y_validation,
         num_epoch,
-        mode='Physics-constrained', width=10,
+        mode='Physics-consistent', width=10,
         patience=50, # used to be 20
         one_d_flag=False,
         green_activation_for_pcnn_2d=False,
-        x_physics = None, y_physics = None, generalization_test_flag = False
+        x_physics = None, y_physics = None, generalization_test_flag = False,
+        x_test=None, y_test=None,
 ):
     # x, y = dataset_gen()
     model = net_basic(
@@ -23,8 +24,11 @@ def single_train(
     optim = torch.optim.Adam(model.parameters())
     loss_operator = torch.nn.MSELoss()
     x_tensor, y_tensor = torch.from_numpy(x).float(), torch.from_numpy(y).float()
-    x_test_tensor = torch.from_numpy(x_test).float()
-    y_test_tensor = torch.from_numpy(y_test).float()
+    x_validation_tensor = torch.from_numpy(x_validation).float()
+    y_validation_tensor = torch.from_numpy(y_validation).float()
+    if generalization_test_flag:
+        x_test_tensor = torch.from_numpy(x_test).float()
+        y_test_tensor = torch.from_numpy(y_test).float()
 
     try_num = 0
     max_err = 1e5
@@ -36,10 +40,10 @@ def single_train(
     if generalization_test_flag:
         name_model += '_generalization'
     name_model += '.pt'
-    model_state = model.state_dict()
+    # model_state = model.state_dict()
     for epoch in range(num_epoch):
         optim.zero_grad()
-        if mode == 'Vanilla' or mode == 'Physics-constrained':
+        if mode == 'Vanilla' or mode == 'Physics-consistent':
             y_pre = model.forward(x_tensor)
             loss = loss_operator(y_tensor, y_pre)
         elif 'informed' in mode:
@@ -70,11 +74,14 @@ def single_train(
         optim.step()
         if epoch % 100 == 0:
             loss = loss_operator(y_pre, y_tensor)
-            y_pre_test = model.forward(x_test_tensor)
-            loss_test = loss_operator(y_pre_test, y_test_tensor)
-            line = 'Epoch %d The current loss is %.3e test_loss: %.3e %s' % (epoch, loss.item(), loss_test.item(), mode)
-            if max_err>loss_test:
-                max_err = loss_test
+            y_pre_validation = model.forward(x_validation_tensor)
+            loss_validation = loss_operator(y_pre_validation, y_validation_tensor)
+            if generalization_test_flag:
+                loss_test = loss_operator(model.forward(x_test_tensor), y_test_tensor)
+            line = 'Epoch %d The current loss is %.3e test_loss: %.3e %s' % \
+                   (epoch, loss.item(), loss_validation.item(), mode)
+            if max_err > loss_validation:
+                max_err = loss_validation
                 try_num = 0
                 line += ' improved!'
                 # model_state = model.state_dict()
@@ -86,7 +93,10 @@ def single_train(
                 line += ' nu=%.2f' % model.nu.item()
                 nu_list.append(model.nu.item())
             print(line)
-            loss_list.append([epoch, loss.item(), loss_test.item()])
+            temp = [epoch, loss.item(), loss_validation.item()]
+            if generalization_test_flag:
+                temp.append(loss_test.item())
+            loss_list.append(temp)
             if try_num >= patience:
                 break
 

@@ -60,7 +60,7 @@ def data_gen(n=20, save_path='xy_data', gaussian_flag=True, noise=0.1, k=4.0):
                              vmax = 2.4)
     plt.colorbar()
     plt.scatter(x[index_train, 0], x[index_train, 1], label='Training sets', c='g', marker='x')
-    plt.scatter(x[index_test, 0], x[index_test, 1], label='Test sets', c='k', marker='o')
+    plt.scatter(x[index_test, 0], x[index_test, 1], label='Validation sets', c='k', marker='o')
     plt.legend()
     plt.tight_layout()
     fig_path_name = os.path.join(save_path, 'contourf_helmholtz_noise.png')
