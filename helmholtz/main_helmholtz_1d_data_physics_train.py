@@ -141,7 +141,7 @@ def test_trained_model(generalization_test_flag=False):
         name_fig += '_generalization'
     name_fig += '.png'
 
-    fig.savefig('%s/%s.png' % (fig_save_path, name_fig), dpi=200)
+    fig.savefig('%s/%s' % (fig_save_path, name_fig), dpi=200)
     plt.show()
     plt.close()
 
@@ -189,13 +189,14 @@ def plot_loss(mode_list, loss_dic: dict, save_path: str, ond_d_flag=False,
 
         # plot the line of convergence
         if 'Physics' in mode:
-            min_vali_loss_index = np.armin(loss_validation)
+            min_vali_loss_index = np.argmin(loss_validation)
 
-            epoch_max = max(epoch)/1e3
-            plt.plot([epoch_max, epoch_max], [1e-4, 1e-1],
+            epoch_min = epoch[min_vali_loss_index]/1e3
+            plt.plot([epoch_min, epoch_min], [1e-4, 1e-1],
                      c='k', linestyle='dashdot', zorder=12)
             plt.scatter(
-                x= [epoch_max, epoch_max], y=[loss_validation[min_vali_loss_index], loss[min_vali_loss_index]], color = 'r')
+                x= [epoch_min, epoch_min],
+                y=[loss_validation[min_vali_loss_index], loss[min_vali_loss_index]], color = 'r')
 
     plt.yscale('log')
     plt.xlabel('Epoch/1e3')

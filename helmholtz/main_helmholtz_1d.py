@@ -121,5 +121,5 @@ def plot_nu(loss, nu_arr, ond_d_flag=False):
 
 
 if __name__ == '__main__':
-    # main()
+    main()
     print()
