@@ -37,7 +37,9 @@ def main(
     index_test = index[-int(num_samples * ratio):]
     y_noise = y_noise[:, np.newaxis]
     # y_noise = y[:, np.newaxis]
-    mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
+    # mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
+    mode_list = ['Physics-constrained', ]
+    green_activation_for_pcnn_2d = True
     loss_dic = {}
     nu_dic = {}
     for mode in mode_list:
@@ -45,7 +47,8 @@ def main(
         loss_dic[mode], nu_dic[mode] = single_train(
             x=x[index_train], y=y_noise[index_train],
             x_test=x[index_test], y_test=y_noise[index_test],
-            mode=mode, width=100, num_epoch=num_epoch)
+            mode=mode, width=100, num_epoch=num_epoch,
+            green_activation_for_pcnn_2d=green_activation_for_pcnn_2d)
         test_single_trained_model(mode=mode)
     #
     plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path)

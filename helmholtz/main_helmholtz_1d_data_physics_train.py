@@ -8,9 +8,10 @@ import os
 
 
 np.random.seed(10000)
+torch.manual_seed(9999)
 fig_save_path = 'xy_data'
-mode_list = ['Physics-informed', 'Physics-constrained', ]
-# mode_list = [ 'Physics-informed' ]
+mode_list = ['Vanilla', 'Physics-informed', 'Physics-constrained', ]
+# mode_list = [ 'Physics-constrained' ]
 
 
 # plot configuration
@@ -40,9 +41,10 @@ y = A * np.sin(omega*x + phi)
 y_noise = y + np.random.randn(nx) *noises_amptitude
 index_equidistant = np.arange(0, nx, nx//20)
 number_points = len(index_equidistant)
-index_train_1 = index_equidistant[:int(0.4*number_points)]
-index_train_2 = index_equidistant[int(0.4*number_points):int(0.7*number_points)]
-index_test = index_equidistant[-int(0.3*number_points):]
+index_train_1 = index_equidistant[:int(0.5*number_points)]
+index_train_2 = index_equidistant[int(0.5*number_points):int(0.7*number_points)]
+index_validation = np.random.permutation(list(range(nx))[:int(0.7*number_points)])[:int(0.3*nx)] # this is used in the validation
+index_test = index_equidistant[-int(0.3*number_points):] # this is used in the test after training
 
 plt.plot(x, y, label='Truth')
 plt.scatter(x[index_train_1], y_noise[index_train_1], c='g', marker='x', label='Train sets')
@@ -81,42 +83,70 @@ def main(
     for mode in mode_list:
         print('\n\n' + '=' * 60 + '\n' + '\tMode: %s' % mode + '\n')
         loss_dic[mode], nu_dic[mode] = single_train(
-            x=x_temp[index_train], y=y_noise_temp[index_train],
-            x_test=x_temp[index_test], y_test=y_noise_temp[index_test],
+            x=x_temp[index_train_1], y=y_noise_temp[index_train_1],
+            x_physics=x_temp[index_train_2] if 'informed' in mode else None,
+            y_physics=y_noise_temp[index_train_2] if 'informed' in mode else None,
+            generalization_test_flag = True,
+            x_test=x_temp[index_validation], y_test=y_noise_temp[index_validation],
             mode=mode, width=100, num_epoch=num_epoch, one_d_flag=True)
-    test_trained_model()
-    #
-    plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path, ond_d_flag=True)
+    # plot the model prediction
+    test_trained_model(
+              generalization_test_flag=True)
+    # plot the training process
+    plot_loss(mode_list=mode_list, loss_dic=loss_dic, save_path=save_path,
+              ond_d_flag=True,
+
+              generalization_test_flag=True)
     #
     # plot the evolution of nu
-    plot_nu(loss_dic['Physics-informed'], nu_dic['Physics-informed'], ond_d_flag=True)
+    plot_nu(loss_dic['Physics-informed'], nu_dic['Physics-informed'],
+            ond_d_flag=True,
+            generalization_test_flag=True)
 
 
-def test_trained_model():
+def test_trained_model(generalization_test_flag=False):
     prediction = []
 
     plot_index = range(0, nx, nx//15)
     plt.scatter(x[plot_index], y[plot_index], c='k', label='Truth', zorder=10)
     for mode in mode_list:
-        model = torch.load('%s_1d.pt' % mode)
+        model = torch.load('%s_1d_generalization.pt' % mode)
 
         with torch.no_grad():
             prediction.append(model.forward(torch.from_numpy(x[:, np.newaxis]).float()).numpy().reshape(-1))
         plt.plot(x, prediction[-1], label=mode)
+
+    plt.fill_betweenx(
+        y=[-1.5, 1.5], x1=[-0.1, -0.1], x2=[x[index_train_1[-1]], x[index_train_1[-1]]],
+        color='pink', alpha=0.5, )
+    plt.fill_betweenx(
+        y=[-1.5, 1.5], x1=[x[index_train_1[-1]], x[index_train_1[-1]]],
+        x2=[x[index_train_2[-1]], x[index_train_2[-1]]],
+        color='gray', alpha=0.5, )
+    plt.text(x=0.0, y=0., s=r'$\mathcal{L}_d + \mathcal{L}_p$', fontsize=20)
+    plt.text(x=0.48, y=0., s=r'$\mathcal{L}_p$', fontsize=20)
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-1.2, 1.2])
 
     plt.legend()
     plt.xlabel(r'$x$')
     plt.ylabel(r'$y$')
     plt.tight_layout()
     fig = plt.gcf()
-    fig.savefig('%s/1d_prediction.png' % fig_save_path, dpi=200)
+
+    name_fig = '1d_prediction'
+    if generalization_test_flag:
+        name_fig += '_generalization'
+    name_fig += '.png'
+
+    fig.savefig('%s/%s.png' % (fig_save_path, name_fig), dpi=200)
     plt.show()
     plt.close()
 
     return
 
 
-def plot_nu(loss, nu_arr, ond_d_flag=False):
+def plot_nu(loss, nu_arr, ond_d_flag=False, generalization_test_flag=False):
     epoch = loss[:, 0]
     plt.plot(epoch/1e3, nu_arr)
     plt.xlabel('Epoch/1e3')
@@ -131,10 +161,17 @@ def plot_nu(loss, nu_arr, ond_d_flag=False):
     plt.grid()
     plt.tight_layout()
     fig = plt.gcf()
-    name = os.path.join(fig_save_path, 'nu_evolution.png' if not ond_d_flag else 'nu_evolution_1d.png')
+    name_fig ='nu_evolution'
+    if ond_d_flag:
+        name_fig+= '_1d'
+    if generalization_test_flag:
+        name_fig+= '_generalization'
+    name_fig += '.png'
+    name = os.path.join(fig_save_path, name_fig)
     fig.savefig(name, dpi=200)
     plt.show()
     plt.close()
 
 
-main()
+if __name__ == '__main__':
+    main()

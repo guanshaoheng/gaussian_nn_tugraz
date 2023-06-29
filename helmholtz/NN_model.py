@@ -5,7 +5,9 @@ import numpy as np
 class net_basic(torch.nn.Module):
     def __init__(
             self, in_features=1, out_features=1, width=100, bias_flag=False, mode='Vanilla',
-            one_d_flag=False):
+            one_d_flag=False,
+            green_activation_for_pcnn_2d = False,
+    ):
         super(net_basic, self).__init__()
         self.mode = mode
         self.in_features = in_features
@@ -47,7 +49,10 @@ class net_basic(torch.nn.Module):
 
         elif mode == 'Physics-constrained':
             # self.activation = self.cos_activaton
-            self.activation = self.bessel0_activation if not self.one_d_flag  else self.sin_activaton
+            self.activation = self.bessel0_activation if not self.one_d_flag else self.sin_activaton
+            if green_activation_for_pcnn_2d:
+                print('\n\n' + '-'*60 + '\n' + 'Green function used as the activation!')
+                self.activation = self.green_activation
         # self.activation_other = torch.nn.Tanh()
         else:
             raise ValueError
@@ -82,6 +87,12 @@ class net_basic(torch.nn.Module):
             s_um += t
         # s_um = torch.special.bessel_j0(x)
         return s_um
+
+    def green_activation(self, x):
+        h_real = torch.cos(x)/x
+        h_imagin = torch.sin(x)/x  # there is no where to times the
+                                   # imaginary part together as this is a single hidden layer NN
+        return h_real
 
     def forward_ddy(self, x):
         '''
