@@ -55,16 +55,14 @@ class net_basic(torch.nn.Module):
             self.activation = self.bessel0_activation if not self.one_d_flag else self.sin_activaton
             if green_activation_for_pcnn_2d:
                 print('\n\n' + '-' * 60 + '\n' + 'Green function used as the activation!')
-                # self.w_k = torch.nn.Parameter(
-                #     torch.rand(size=[self.in_features, self.width*2]) / np.sqrt(self.in_features), requires_grad=True)
-                # self.a_k = torch.nn.Parameter(
-                #     torch.rand(size=[self.width*2]) / np.sqrt(self.in_features), requires_grad=True)
-                # self.l1_x = torch.nn.Linear(in_features=self.in_features, out_features=self.width)
-                # self.l1_y = torch.nn.Linear(in_features=self.in_features, out_features=self.width)
-                # self.l2 = torch.nn.Linear(in_features=self.width, out_features=self.out_features)
-                self.nn_x = net_x(in_features=1, width=self.width, bias_flag=True)
-                self.nn_y = net_x(in_features=1, width=self.width, bias_flag=True)
+                self.nn_x = net_x(in_features=self.in_features, width=self.width, bias_flag=True)
+                self.nn_y = net_x(in_features=self.in_features, width=self.width, bias_flag=True)
+                self.alpha = torch.nn.Parameter(
+                    torch.ones(size=[1])[0], requires_grad=True)
+                self.beta = torch.nn.Parameter(
+                    torch.ones(size=[1])[0], requires_grad=True)
                 self.l2 = torch.nn.Linear(in_features=self.width, out_features=self.out_features)
+                self.l2_sin = torch.nn.Linear(in_features=self.width, out_features=self.out_features)
                 self.forward = self.forward_green
         # self.activation_other = torch.nn.Tanh()
         else:
@@ -81,9 +79,10 @@ class net_basic(torch.nn.Module):
         return y
 
     def forward_green(self, x):  # x in shape of ((number of samples, 2))
-        x_ = self.nn_x(x[:, 0:1])  # in shape of (number of samples, width)
-        y_ = self.nn_y(x[:, 1:2])  # in shape of (number of samples, width)
-        output = self.l2(self.green_activation(x_, y_))  # in shape of (number of samples, 1)
+        x_ = self.nn_x(x[:, 0:2])  # in shape of (number of samples, width)
+        y_ = self.nn_y(x[:, 0:2])  # in shape of (number of samples, width)
+        real, imaginary = self.green_activation(x_, y_)
+        output = self.l2(real) + self.l2_sin(imaginary)  # in shape of (number of samples, 1)
         return output
 
     def sin_activaton(self, x):
@@ -102,11 +101,10 @@ class net_basic(torch.nn.Module):
 
     def green_activation(self, x, y):
         # r = torch.linalg.norm(x, d)
-        r = torch.sqrt(x ** 2 + y ** 2 + 1e-8)       # in shape of (number of samples, width)
-        h_real = torch.cos(r) # / (r * 4. * torch.pi)  # in shape of (number of samples, width)
-        # h_imagin = torch.sin(x)/x  # i*i # there is no where to times the
-        # imaginary part together as this is a single hidden layer NN
-        return h_real
+        r = torch.sqrt(x ** 2 + y ** 2 + 1e-4)  # in shape of (number of samples, width)
+        h_real = torch.cos(self.alpha * r)/ r   # in shape of (number of samples, width)
+        h_imaginary = torch.cos(self.beta * r)/ r
+        return h_real, h_imaginary
 
     def forward_ddy(self, x):
         '''

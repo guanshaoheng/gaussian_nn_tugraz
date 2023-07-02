@@ -92,6 +92,8 @@ def single_train(
             if 'Physics' in mode:
                 line += ' nu=%.2f' % model.nu.item()
                 nu_list.append(model.nu.item())
+            if green_activation_for_pcnn_2d:
+                line += ' alpha=%.2f' % model.alpha.item()
             print(line)
             temp = [epoch, loss.item(), loss_validation.item()]
             if generalization_test_flag:

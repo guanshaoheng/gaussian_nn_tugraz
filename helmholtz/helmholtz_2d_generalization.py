@@ -33,7 +33,7 @@ mpl.rc('lines', **lines)
 
 def main(
         num_epoch=20000,  # 20000,
-        ratio=0.2,
+        ratio=0.7,
         save_path='xy_data'):
     x, y, y_noise, index = data_load(save_path=save_path)
 
@@ -44,8 +44,8 @@ def main(
     index_validation = index[-int(num_samples * ratio):]
     y_noise = y_noise[:, np.newaxis]
     # y_noise = y[:, np.newaxis]
-    mode_list = ['Vanilla', 'Physics-informed', 'Physics-consistent', ]
-    # mode_list = ['Physics-consistent', ]
+    # mode_list = ['Vanilla', 'Physics-informed', 'Physics-consistent', ]
+    mode_list = ['Physics-consistent', ]
     green_activation_for_pcnn_2d = True
     loss_dic = {}
     nu_dic = {}
