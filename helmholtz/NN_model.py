@@ -39,11 +39,11 @@ class net_basic(torch.nn.Module):
            I think we are going to use the randn here to generate the gaussiance distributed $v_k$ ?
         '''
         self.w_k = torch.nn.Parameter(
-            torch.rand(size=[self.in_features, self.width]) / np.sqrt(self.in_features), requires_grad=True)
+            torch.randn(size=[self.in_features, self.width]) / np.sqrt(self.in_features), requires_grad=True)
         self.a_k = torch.nn.Parameter(
-            torch.rand(size=[self.width]) / np.sqrt(self.in_features), requires_grad=True)
+            torch.randn(size=[self.width]) / np.sqrt(self.in_features), requires_grad=True)
         self.v_k = torch.nn.Parameter(
-            torch.rand(size=[self.width, 1]) / np.sqrt(self.width), requires_grad=True)
+            torch.randn(size=[self.width, 1]) / np.sqrt(self.width), requires_grad=True)
         # self.v_k = torch.randn(size=[self.width, 1], requires_grad=False)
         if mode == 'Vanilla':
             self.activation = torch.nn.ReLU()
